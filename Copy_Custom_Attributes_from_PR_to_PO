@@ -1,0 +1,37 @@
+from  psdi.util import MXApplicationException;
+from  psdi.util import MXException;
+
+from psdi.mbo import Mbo, MboRemote, MboSet, MboSetRemote, MboConstants
+from psdi.security import UserInfo
+from psdi.server import MXServer
+from psdi.util.logging import MXLogger
+from psdi.util.logging import MXLoggerFactory
+
+from psdi.mbo import MboConstants
+
+logger = MXLoggerFactory.getLogger("Maximo.script")
+logger.debug("===Copy Custom Field in PO" + launchPoint + "====Entered in Script===")
+
+PrLinesMboSet = mbo.getMboSet("$CUSTOMPRLINES", "PRLINE", "ponum=:ponum and orgid=:orgid and positeid=:siteid and porevisionnum=:revisionnum")
+PrLinesMboSet.reset()
+PRLinesMbo = PrLinesMboSet.moveFirst()
+
+PRMboSet = PRLinesMbo.getMboSet("$CUSTOMPR", "PR", "prnum=:prnum and siteid=:siteid")
+PRMboSet.reset()
+logger.debug("PRMboSet"+str(PRMboSet.count()))
+
+PRMbo = PRMboSet.moveFirst()
+
+#PLANTSTATUS = 
+#OUTAGE = 
+#CONTRACTREF = 
+
+mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_PLANTSTATUS"),  MboConstants.NOVALIDATION_AND_NOACTION)
+mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_OUTAGE"),  MboConstants.NOVALIDATION_AND_NOACTION)
+mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_CONTRACTREF"),  MboConstants.NOVALIDATION_AND_NOACTION)
+
+############Script Info###############
+#Author = Utkarsh Shukla 
+#Created = 03 March, 2020
+#Modified = NA
+#Purpose = Copy Custom fields from PR to PO
