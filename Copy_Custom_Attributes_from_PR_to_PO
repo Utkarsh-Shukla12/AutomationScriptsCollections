@@ -12,7 +12,11 @@ from psdi.mbo import MboConstants
 logger = MXLoggerFactory.getLogger("Maximo.script")
 logger.debug("===Copy Custom Field in PO" + launchPoint + "====Entered in Script===")
 
-PrLinesMboSet = mbo.getMboSet("$CUSTOMPRLINES", "PRLINE", "ponum=:ponum and orgid=:orgid and positeid=:siteid and porevisionnum=:revisionnum")
+poset = mbo.getThisMboSet()
+po.reset()
+po = poset.getMbo(0)
+
+PrLinesMboSet = po.getMboSet("$CUSTOMPRLINES", "PRLINE", "ponum=:ponum and orgid=:orgid and positeid=:siteid and porevisionnum=:revisionnum")
 PrLinesMboSet.reset()
 PRLinesMbo = PrLinesMboSet.moveFirst()
 
