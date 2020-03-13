@@ -16,6 +16,18 @@ poset = mbo.getThisMboSet()
 po.reset()
 po = poset.getMbo(0)
 
+from psdi.mbo import MboRemote
+from psdi.mbo import MboSetRemote
+from psdi.mbo import MboConstants
+
+poSet = mbo.getThisMboSet()
+po = poSet.getMbo(0)
+prset = mbo.getMboSet("PR")
+pr = prset.getMbo(0)
+count = pr.getString("DGC_OUTAGE")
+po.setValue("DGC_CONTRACTREF",count)
+prset.close()
+"""
 PrLinesMboSet = po.getMboSet("$CUSTOMPRLINES", "PRLINE", "ponum=:ponum and orgid=:orgid and positeid=:siteid and porevisionnum=:revisionnum")
 PrLinesMboSet.reset()
 PRLinesMbo = PrLinesMboSet.moveFirst()
@@ -32,7 +44,7 @@ PRMbo = PRMboSet.moveFirst()
 
 mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_PLANTSTATUS"),  MboConstants.NOVALIDATION_AND_NOACTION)
 mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_OUTAGE"),  MboConstants.NOVALIDATION_AND_NOACTION)
-mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_CONTRACTREF"),  MboConstants.NOVALIDATION_AND_NOACTION)
+mbo.setValue("DGC_PLANTSTATUS", PRMbo.getString("DGC_CONTRACTREF"),  MboConstants.NOVALIDATION_AND_NOACTION)"""
 
 ############Script Info###############
 #Author = Utkarsh Shukla 
