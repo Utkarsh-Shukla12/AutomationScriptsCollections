@@ -41,7 +41,7 @@ from psdi.server import MXServer
 from com.hccb.restclient.outbound import DefaultJsonClient
 from sys import *
 
-# Script Name: COCMATCONSM
+# Script Name: MATCONSM
 # Post Material Consumed against WO/Process Order
 
 # method for releasing the open client connection
