@@ -1,10 +1,12 @@
-# NAME:   AUTOPOSTING_TO_SAP
-# LANGUAGE: JYTHON
-# DESCRIPTION:  TO  POST  TO SAP
-# Developer: Utkarsh Shukla
-# Date Created 28 May, 2019
-# Version: 1.0
-# Date Modified:
+####################################################
+# NAME: -> AUTOPOSTING_TO_SAP
+# LANGUAGE: -> JYTHON
+# DESCRIPTION: -> TO  POST  TO SAP
+# Developer: -> Utkarsh Shukla
+# Date Created: -> 28 May, 2019
+# Version: -> 1.0
+# Modified by: ->
+# Reason for change: ->
 # Launchpoint: Object-> On Save -> On Update
 # ------------------------------------------------#
 
