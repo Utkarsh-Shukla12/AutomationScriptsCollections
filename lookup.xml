@@ -1,0 +1,28 @@
+<table id="stationlocation" inputmode="readonly" mboname="LOCATIONS" selectmode="single">
+		<tablebody displayrowsperpage="20" filterable="true" filterexpanded="true" id="stationlocation_lookup_tablebody">
+			<tablecol dataattribute="location" id="stationlocation_lookup_tablebody_col_2" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="description" id="stationlocation_lookup_tablebody_col_3" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="type" id="stationlocation_lookup_tablebody_col_4" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="SERVICEADDRESS.FORMATTEDADDRESS" id="stationlocation_lookup_tablebody_col_6" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="WAMBUSINESSFUNCTION" id="stationlocation_lookup_tablebody_col_7" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="WAMENTITY" id="stationlocation_lookup_tablebody_col_81" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<defaultvalue dataattribute="WAMENTITY" defaulttype="query" fromattribute="WAMENTITY" fromdatasrc="mainrecord" id="1259_Default_terrirotyback"/>
+			<tablecol dataattribute="WAMTERRITORY" id="stationlocation_lookup_tablebody_col_91" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+		</tablebody>
+	</table>
+  	<table filterexpanded="true" id="plusdcuversionadd" inputmode="readonly" rowsperpage="15" selectmode="single">
+		<tablebody displayrowsperpage="20" filterable="true" id="plusdcuversionadd_lookup_tablebody">
+			<tablecol dataattribute="cuname" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_0" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="description" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_1" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="cuversion" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_2" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="culevelnum" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_3" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="status" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_4" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<defaultvalue dataattribute="WAMCOMMODITY" defaulttype="query" fromattribute="WAMCOMMODITY" fromdatasrc="mainrecord" id="2405_Default_commodity"/>
+			<tablecol dataattribute="WAMCOMMODITY" filterable="false" id="plusdcuversionadd_lookup_tablebody_col_5" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<defaultvalue dataattribute="WAMCULOOKUP.WAMVALUE" defaulttype="query" fromattribute="WAMENTITY" fromdatasrc="mainrecord" id="2405_Default_terrirotyback"/>
+			<tablecol dataattribute="WAMCULOOKUP.WAMVALUE" filterable="true" hidden="true" id="plusdcuversionadentity_lookup_tablebody_col_5" label="Entity" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<tablecol dataattribute="ASSETCODE" filterable="true" id="plusdcuversionadd_lookup_tablebody_col_8" mxevent="selectrecord" mxevent_desc="Go To %1" sortable="true" type="link"/>
+			<datasrc id="wamperson_datasrc" mboname="person" whereclause="personid=:personid"/>
+			<datasrc id="wamestimate_datasrc" mboname="plusdestcontrol" whereclause="REQUESTNUM=:REQUESTNUM"/>
+		</tablebody>
+	</table>
