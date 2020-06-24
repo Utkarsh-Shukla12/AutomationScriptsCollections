@@ -5,7 +5,14 @@
 # Description:Asset Meter New Reading
 # LANGUAGE: PYTHON
 #######################
-
+###
+# Version History##
+###
+# Version     Developer          Date Modified          Reason for modifiaction       Developer Comments
+###
+# 1.0         Utkarsh Shukla     24 June,2020            Original script              Created Orginal Script
+#
+################################
 
 import java
 from psdi.util.logging import MXLogger
