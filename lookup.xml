@@ -26,3 +26,134 @@
 			<datasrc id="wamestimate_datasrc" mboname="plusdestcontrol" whereclause="REQUESTNUM=:REQUESTNUM"/>
 		</tablebody>
 	</table>
+
+
+######################################################################################################################################
+#Script Name: SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE
+# 
+#
+#
+######################################################################################################################################
+#Developer          Version         Date            LaunchPoint                 Event            Remarks                              
+#-------------------------------------------------------------------------------------------------------------------------------------
+#
+# Pranav Raj		1.0				22-Mar-19		SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE		Script to create a worklog entry.
+# Pranav Raj		2.0				23-Aug-19		SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE		Defect#634- Added logic to derive Areaworkcenter based on OMS Areaworkcenter.
+# Rimjhim Agrawal	3.0				23-Aug-19		SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE		Defect#478- Added logic to remove duplicateion of wo creation.
+######################################################################################################################################
+from java.lang import String
+from psdi.server import MXServer
+from psdi.util.logging import MXLogger
+from psdi.util.logging import MXLoggerFactory	
+logger = MXLoggerFactory.getLogger("maximo.autoscript")
+logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE:::START:::")
+
+erData.breakData()
+wonum=erData.getCurrentData("WONUM")
+awc=erData.getCurrentData("WAMAREAWORKCENTER")
+externalrefid=erData.getCurrentData("EXTERNALREFID")
+wamsourcesysidentfier=erData.getCurrentData("WAMSOURCESYSIDENTIFIER")
+if awc is not None:
+##Fetching Areaworkcenter and setting it in the inbound request.
+	awcSet=workRequestSet=MXServer.getMXServer().getMboSet("WAMAREAWORKCENTER",MXServer.getMXServer().getSystemUserInfo())
+	awcSet.setWhere("WAMOMSAWC='"+awc+"'")
+	awcSet.reset()
+	if awcSet.isEmpty()==0:
+		awcCodeMbo=awcSet.moveFirst()
+		awcCode=awcCodeMbo.getString("WAMAWCCODE")
+		erData.setCurrentData("WAMAREAWORKCENTER", awcCode)
+		logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WAMAREAWORKCENTER='"+awcCode+"'")
+		awcSet.close()
+		awcSet.clear()
+if wonum is None:
+##Setting wonum in the inbound request.	
+	workRequestSet=MXServer.getMXServer().getMboSet("WORKORDER",MXServer.getMXServer().getSystemUserInfo())
+	workRequestSet.setWhere("EXTERNALREFID='"+externalrefid+"' and WAMSOURCESYSIDENTIFIER='"+wamsourcesysidentfier+"'")
+#defect-4728 check if the work order already exist for the same combination of externalrefid and sourcsysidentfier.
+	if(workRequestSet.isEmpty()==True):
+		
+		workRequestMbo=workRequestSet.add()
+		wonum=workRequestMbo.getString("WONUM")
+		if workRequestMbo is not None:
+			erData.setCurrentData("WONUM", wonum)
+			erData.setCurrentData("WAMWR",1)
+			logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WONUM='"+wonum+"'")
+			serAdd=erData.getChildrenData("WOSERVICEADDRESS")
+			erData.setAsCurrent(serAdd,0)
+			erData.setCurrentData("WONUM", wonum)
+			erData.setParentAsCurrent()		
+			worklog=erData.getChildrenData("WORKLOG")
+			erData.setAsCurrent(worklog,0)
+			
+			remarks1=erData.getCurrentData("DESCRIPTION_LONGDESCRIPTION")
+			
+			remarks2=erData.getCurrentData("WAMCUSTOMERREMARKS_LONGDESCRIPTION")
+			
+			remarks3=erData.getCurrentData("WAMDISPATCHREMARKS_LONGDESCRIPTION")
+			
+			remarks4=erData.getCurrentData("WAMEVENTREMARKS_LONGDESCRIPTION")
+			
+			erData.setParentAsCurrent()
+			
+			erData.removeChildren("WORKLOG")
+				
+	##Creating worklog entries.
+			if remarks1 is not None:
+				erData.createChildrenData("WORKLOG", True)
+				erData.setCurrentData("RECORDKEY", wonum)
+				erData.setCurrentData("SITEID", "ESSITE")
+				erData.setCurrentData("DESCRIPTION", "EVENT MODIFIED DATETIME")	
+				erData.setCurrentData("HASLD", 1)			
+				erData.setCurrentData("LOGTYPE", "OMS")
+				erData.setCurrentData("DESCRIPTION_LONGDESCRIPTION", remarks1)
+				
+				erData.setParentAsCurrent()
+				logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WORKLOG created with description:: EVENT MODIFIED DATETIME")
+			
+			if remarks2 is not None:
+				erData.createChildrenData("WORKLOG", True)
+				erData.setCurrentData("RECORDKEY", wonum)
+				erData.setCurrentData("SITEID", "ESSITE")
+				erData.setCurrentData("DESCRIPTION", "CUSTOMER REMARKS")	
+				erData.setCurrentData("HASLD", 1)			
+				erData.setCurrentData("LOGTYPE", "OMS")
+				erData.setCurrentData("DESCRIPTION_LONGDESCRIPTION", remarks2)
+				
+				erData.setParentAsCurrent()
+				logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WORKLOG created with description:: CUSTOMER REMARKS")
+			if remarks3 is not None:
+				erData.createChildrenData("WORKLOG", True)
+				erData.setCurrentData("RECORDKEY", wonum)
+				erData.setCurrentData("SITEID", "ESSITE")
+				erData.setCurrentData("DESCRIPTION", "DISPATCHER REMARKS")	
+				erData.setCurrentData("HASLD", 1)
+				
+				erData.setCurrentData("LOGTYPE", "OMS")
+				erData.setCurrentData("DESCRIPTION_LONGDESCRIPTION", remarks3)
+				
+				erData.setParentAsCurrent()
+				logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WORKLOG created with description:: DISPATCHER REMARKS")
+			if remarks4 is not None:
+				erData.createChildrenData("WORKLOG", True)
+				erData.setCurrentData("RECORDKEY", wonum)
+				erData.setCurrentData("SITEID", "ESSITE")
+				erData.setCurrentData("DESCRIPTION", "EVENT REMARKS")	
+				erData.setCurrentData("HASLD", 1)			
+				erData.setCurrentData("LOGTYPE", "OMS")
+				erData.setCurrentData("DESCRIPTION_LONGDESCRIPTION", remarks4)
+				
+				erData.setParentAsCurrent()
+				logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE::WORKLOG created with description:: EVENT REMARKS")
+	else:	
+		
+		wonum=workRequestSet.getMbo(0).getString("WONUM")
+		
+		erData.setCurrentData("WONUM", wonum)
+		serAdd=erData.getChildrenData("WOSERVICEADDRESS")
+		erData.setAsCurrent(serAdd,0)
+		erData.setCurrentData("WONUM", wonum)
+		erData.setParentAsCurrent()
+##worklog entries created.				
+		
+erData.setParentAsCurrent()
+logger.debug("WAM:::DEBUG:::SYNC.WAM_OMS_ES.USEREXIT.IN.BEFORE:::END:::")
