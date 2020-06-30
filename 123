@@ -1,5 +1,5 @@
 ############################################################################################################################ 
-# Name:  WAM_OBJ_INTTRG_PRIMAVERA 
+# Name:  
 # Launch Point: OBJECT 
 # Event: Save 
 # 
@@ -9,8 +9,8 @@
 # Developer						Version		Date			launchPoint						Remarks                              
 #-------------------------------------------------------------------------------------------------------------------------- 
 #
-# Rimjhim Agrawal					1.0     	11/02/2018		WAM_OBJ_INTTRG_PRIMAVERA		Defect: 4646 Send Outbound to Primavera on workorder updates
-# Rimjhim Agrawal					2.0     	11/5/2018		WAM_OBJ_INTTRG_PRIMAVERA		Defect: 6243 Staging record to batchtabbles before sending to Primavera
+# Utkarsh Shukla					1.0     	11/02/2018		WAM_OBJ_INTTRG_PRIMAVERA		Defect: 4646 Send Outbound to Primavera on workorder updates
+# Utkarsh Shukla					2.0     	11/5/2018		WAM_OBJ_INTTRG_PRIMAVERA		Defect: 6243 Staging record to batchtabbles before sending to Primavera
 # 
 ############################################################################################################################
 from psdi.server import MXServer
