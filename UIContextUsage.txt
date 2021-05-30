@@ -1,0 +1,27 @@
+As for your automation script examples, there were 3 things added to the service (ScriptService) that are all pretty useful. 
+
+1) Your open URL example. service.openURL(String url, boolean newWindow)
+2) Launch a dialog. service.launchDialog(String dialogId)
+3) service.getMboSet(String mboSetName, UserInfo userInfo)
+
+1. Create a Object launch point automation script WO_TEST as below. Event Save->Add/update.
+
+from psdi.common.context import UIContext
+from psdi.webclient.system.session import WebClientSessionManager
+from psdi.webclient.system.controller import SessionContext, Utility, WebClientEvent
+from java.lang.System import out
+
+out.println("start of script WO_TEST**************")
+
+c = UIContext.getCurrentContext().getWebClientSession()
+dialogId = "status"
+out.println("script WO_TEST**************"+dialog)
+service.launchDialog(dialogId)
+out.println("script WO_TEST**********after launchdialog**********")
+
+2. Goto Work Order Tracking application and update any record, click save. System will open dialog 'Change Status' (dialogId passed as status).
+
+This method can be used in script whenever we need to open pop-up dialog to the user after performing some logic.
+Dialogs can also be opened without this method by using below code:
+
+Utility().sendEvent(WebClientEvent("status", c.getCurrentPageId(), None, SessionContext(c)))
