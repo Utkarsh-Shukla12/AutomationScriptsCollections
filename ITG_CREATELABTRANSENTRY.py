@@ -33,16 +33,20 @@ from psdi.webclient.system.controller import SessionContext, Utility, WebClientE
 #siteid = mbo.getString("siteid")
 currentDate = MXServer.getMXServer().getDate()
 currentApp = service.webclientsession().getCurrentApp()
+
 WO = currentApp.getDataBean("MAINRECORD");
 ITG_laborBean = currentApp.getDataBean("1623340097764");
 ITG_transferDetailsMbo = currentApp.getDataBean("1624956965612").getMboSet().moveFirst();
-ITG_actualsLabor = currentApp.getDataBean("actuals_actuals_aclabor_aclabor_table");
 ITG_MatSerLabTransSet = mbo.getMboSet("$ITG_MATSERVLABTRANSFER", "ITG_MATSERVLABTRANSFER", "1=2")
 labtransSet =  mbo.getMboSet("$LABTRANS", "LABTRANS", "1=2")
 LaborSelectedRecords = currentApp.getDataBean("selectlaborofwo").getMboSet().getSelection()
+selectedRecordsSize = LaborSelectedRecords.size()
 ORGID = WO.getString("ORGID")
 SITEID = WO.getString("SITEID")
 WONUM = WO.getString("WONUM")
+isTransfer = ITG_transferDetailsMbo.getBoolean("IS_TRANSFER")
+destinationWonum = ITG_transferDetailsMbo.getString("ITG_DEST_WONUM")
+transferDescription = ITG_transferDetailsMbo.getString("ITG_TRANSFER_DESCRIPTION")
     
 
 #raise TypeError("Fetched the Transfer details -> " + str(ITG_transferDetailsMbo.getBoolean("IS_TRANSFER")))
@@ -89,13 +93,36 @@ def addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM):
     negativeLabor.setValue("ASSETNUM",laborMbo.getString("ASSETNUM"),11L)
     negativeLabor.setValue("SKILLLEVEL",laborMbo.getString("SKILLLEVEL"),11L)
     
+def addPositveEntryInLabTrans(labtransSet,ORGID,SITEID):
+    positiveLabor = labtransSet.add(11L)
+    positiveLabor.setValue("ENTERBY",user,11L)
+    positiveLabor.setValue("CRAFT",laborMbo.getString("CRAFT"),11L)
+    positiveLabor.setValue("LABORCODE",laborMbo.getString("LABORCODE"),11L)
+    positiveLabor.setValue("ENTERDATE",currentDate,11L)
+    positiveLabor.setValue("LINECOST", laborMbo.getDouble("LINECOST"),11L)
+    positiveLabor.setValue("REGULARHRS", laborMbo.getDouble("REGULARHRS"),11L)
+    positiveLabor.setValue("ORGID",ORGID,11L)
+    positiveLabor.setValue("SITEID",SITEID,11L)
+    positiveLabor.setValue("REFWO",ITG_transferDetailsMbo.getString("ITG_DEST_WONUM"),11L)
+    positiveLabor.setValue("PAYRATE",laborMbo.getDouble("PAYRATE"),11L)
+    positiveLabor.setValue("STARTDATE",laborMbo.getDate("STARTDATE"),11L)
+    positiveLabor.setValue("STARTDATEENTERED",laborMbo.getDate("STARTDATEENTERED"),11L)
+    positiveLabor.setValue("TRANSDATE",laborMbo.getDate("TRANSDATE"),11L)
+    positiveLabor.setValue("TRANSTYPE",laborMbo.getString("TRANSTYPE"),11L)
+    positiveLabor.setValue("LOCATION",laborMbo.getString("LOCATION"),11L)
+    positiveLabor.setValue("ASSETNUM",laborMbo.getString("ASSETNUM"),11L)
+    positiveLabor.setValue("SKILLLEVEL",laborMbo.getString("SKILLLEVEL"),11L)
     
-    
-    
-    
-    
-    
-    
+def throwError(errorMessage):
+    params = [errorMessage]
+    service.error("COST","Cost_Transfer",params)
+def validateUserInputs():
+    if selectedRecordsSize == 0:
+        throwError('Please Select any record to process')
+    if transferDescription == '':
+        throwError('Before Proceeding, Please Enter the Transfer Description')
+    if isTransfer and destinationWonum == '':
+        throwError('Please Enter the Destination Work Order, where Labor Records will be Transferd or Uncheck the Transfer Check box')
     
 ###------------------------------------------------------------------------------------------------------------------
 # Main Program
@@ -104,10 +131,21 @@ def addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM):
 ''' Fetch ITG_MatSerLabTransSet and Selected records by user'''
     
 #raise TypeError("Fetched the Selected records " + str(ITG_MatSerLabTransSet.add(11L)))
-for record in range(LaborSelectedRecords.size()):
-    laborMbo = LaborSelectedRecords.get(record)
-    addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo)
-    addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM)
+validateUserInputs()
+if isTransfer:
+    for record in range(selectedRecordsSize):
+        laborMbo = LaborSelectedRecords.get(record)
+        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo)
+        addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM)
+        addPositveEntryInLabTrans(labtransSet,ORGID,SITEID)
+        
+else:
+     for record in range(selectedRecordsSize):
+        laborMbo = LaborSelectedRecords.get(record)
+        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo)
+        addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM)
+                     
+        
 #raise TypeError(" Selected records WONUM" + WO.getString("WONUM") + " Orgid " + WO.getString("ORGID")+" Siteid " + WO.getString("SITEID"))
 context = UIContext.getCurrentContext()
 if context:
@@ -117,12 +155,6 @@ if context:
 ITG_MatSerLabTransSet.save(11L)
 ITG_laborBean.getMboSet().reset()
 ITG_laborBean.refreshTable()
-#ITG_actualsLabor.getMboSet().reset()
-#ITG_actualsLabor.refreshTable()
 WO.getMboSet().reset()
-
-#WO.fireDataChangeEvent();
-#WO.fireChildChangedEvent();
-#WO.fireStructureChangedEvent();
 WO.refreshTable()
 WO.getMboSet().save(11L)
