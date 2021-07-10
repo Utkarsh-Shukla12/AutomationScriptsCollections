@@ -35,7 +35,7 @@ currentDate = MXServer.getMXServer().getDate()
 currentApp = service.webclientsession().getCurrentApp()
 
 WO = currentApp.getDataBean("MAINRECORD");
-ITG_laborBean = currentApp.getDataBean("1623340097764");
+ITG_laborBean = currentApp.getDataBean("actuals_actuals_aclabor_aclabor_table");
 ITG_transferDetailsMbo = currentApp.getDataBean("1624956965612").getMboSet().moveFirst();
 ITG_MatSerLabTransSet = mbo.getMboSet("$ITG_MATSERVLABTRANSFER", "ITG_MATSERVLABTRANSFER", "1=2")
 labtransSet =  mbo.getMboSet("$LABTRANS", "LABTRANS", "1=2")
@@ -53,7 +53,7 @@ transferDescription = ITG_transferDetailsMbo.getString("ITG_TRANSFER_DESCRIPTION
 ###------------------------------------------------------------------------------------------------------------------
 # Define your Functions 
 ###------------------------------------------------------------------------------------------------------------------
-def addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo):
+def addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo, transferID):
     ITG_MatSerLabTransMbo = ITG_MatSerLabTransSet.add(11L)
     ITG_MatSerLabTransMbo.setValue("ITG_LABORCODE", laborMbo.getString("LABORCODE"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_SOURCEWO", WO.getString("WONUM"), 11L)
@@ -61,17 +61,23 @@ def addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo):
     ITG_MatSerLabTransMbo.setValue("itg_orgid", WO.getString("ORGID"), 11L)
     ITG_MatSerLabTransMbo.setValue("itg_siteid", WO.getString("SITEID"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_TRANSDES", ITG_transferDetailsMbo.getString("ITG_TRANSFER_DESCRIPTION"), 11L)
-    ITG_MatSerLabTransMbo.setValue("ITG_DESTINATIONWO", ITG_transferDetailsMbo.getString("ITG_DEST_WONUM"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_REGULARHRS", laborMbo.getDouble("REGULARHRS"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_REVERSALID", laborMbo.getString("LABTRANSID"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_PAYRATE", laborMbo.getDouble("PAYRATE"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_STARTDATE", laborMbo.getDate("STARTDATE"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_CRAFT", laborMbo.getString("CRAFT"), 11L)
+    ITG_MatSerLabTransMbo.setValue("ITG_WORKTYPE", laborMbo.getString("TRANSTYPE"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_SKILL", laborMbo.getString("SKILLLEVEL"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_LOCATION", laborMbo.getString("LOCATION"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_DATETIMESTAMP", currentDate, 11L)
+    ITG_MatSerLabTransMbo.setValue("ITG_ENDDATE", laborMbo.getDate("FINISHDATE"), 11L)
     ITG_MatSerLabTransMbo.setValue("ITG_USERSTAMP", user, 11L)
-    ITG_MatSerLabTransMbo.setValue("ITG_ISTRANSFER", True, 11L)
+    if isTransfer:
+        ITG_MatSerLabTransMbo.setValue("ITG_ISTRANSFER", True, 11L)
+        ITG_MatSerLabTransMbo.setValue("ITG_TRANSFERID",transferID , 11L)
+        ITG_MatSerLabTransMbo.setValue("ITG_DESTINATIONWO", ITG_transferDetailsMbo.getString("ITG_DEST_WONUM"), 11L)
+    else:
+        ITG_MatSerLabTransMbo.setValue("ITG_ISNEGATED", True, 11L)
     
 def addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM):
     negativeLabor = labtransSet.add(11L)
@@ -91,6 +97,7 @@ def addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM):
     negativeLabor.setValue("TRANSTYPE",laborMbo.getString("TRANSTYPE"),11L)
     negativeLabor.setValue("LOCATION",laborMbo.getString("LOCATION"),11L)
     negativeLabor.setValue("ASSETNUM",laborMbo.getString("ASSETNUM"),11L)
+    negativeLabor.setValue("ITG_ISPROCESSED",True,11L)
     negativeLabor.setValue("SKILLLEVEL",laborMbo.getString("SKILLLEVEL"),11L)
     
 def addPositveEntryInLabTrans(labtransSet,ORGID,SITEID):
@@ -111,7 +118,9 @@ def addPositveEntryInLabTrans(labtransSet,ORGID,SITEID):
     positiveLabor.setValue("TRANSTYPE",laborMbo.getString("TRANSTYPE"),11L)
     positiveLabor.setValue("LOCATION",laborMbo.getString("LOCATION"),11L)
     positiveLabor.setValue("ASSETNUM",laborMbo.getString("ASSETNUM"),11L)
+    positiveLabor.setValue("ITG_ISPROCESSED",True,11L)
     positiveLabor.setValue("SKILLLEVEL",laborMbo.getString("SKILLLEVEL"),11L)
+    return positiveLabor.getString("LABTRANSID")
     
 def throwError(errorMessage):
     params = [errorMessage]
@@ -135,15 +144,18 @@ validateUserInputs()
 if isTransfer:
     for record in range(selectedRecordsSize):
         laborMbo = LaborSelectedRecords.get(record)
-        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo)
         addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM)
-        addPositveEntryInLabTrans(labtransSet,ORGID,SITEID)
+        transferID = addPositveEntryInLabTrans(labtransSet,ORGID,SITEID)
+        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo, transferID)
+        laborMbo.setValue("ITG_ISPROCESSED",True,11L)
         
 else:
+     transferID = ''
      for record in range(selectedRecordsSize):
         laborMbo = LaborSelectedRecords.get(record)
-        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo)
+        addToITG_MATSERVLABTRANSFER(ITG_MatSerLabTransSet, laborMbo, transferID)
         addNegativeEntryInLabTrans(labtransSet,ORGID,SITEID, WONUM)
+        laborMbo.setValue("ITG_ISPROCESSED",True,11L)
                      
         
 #raise TypeError(" Selected records WONUM" + WO.getString("WONUM") + " Orgid " + WO.getString("ORGID")+" Siteid " + WO.getString("SITEID"))
